@@ -19,6 +19,14 @@ Apply accessibility fixes across the existing experience by adding or improving 
 - `client/public/manus-routes.json`: preserved route manifest for the existing routes.
 - `TODO.md`: acceptance outcomes and implementation status.
 
+## Authentication and dashboard extension
+
+Enable the Webdev server and managed MySQL database capabilities so the existing Manus OAuth implementation can create and validate application sessions against the `users` table. Keep the starter’s fixed `webdev_app_session` cookie contract, CSRF-bound OAuth state, and protected tRPC procedure pattern. Apply the checked-in users migration before serving authenticated requests.
+
+Add `/dashboard` as a protected application route rendered through the prepared `DashboardLayout`. The layout should show a real sign-in state when unauthenticated, the authenticated user identity and sign-out action when logged in, and Quillspark-specific navigation instead of placeholder menu labels. The first dashboard surface is an authenticated workspace overview with recent-work links, activity context, sample workspace metrics, and a writing-desk CTA; it is intentionally honest about sample content and does not invent persisted analytics.
+
+The public Quillspark and Threadline sign-in controls should launch Manus OAuth, while the primary “Open workspace”/“Start writing” action should send users to `/dashboard`. The route manifest must include `/dashboard`. Server-backed publishing uses the existing `Dockerfile`, `/api/health`, and `pnpm build`/`pnpm start` path now that server capability is enabled; static-only preview is no longer sufficient for auth verification.
+
 ## Design direction
 
 - **Design movement:** Editorial product studio with hand-marked paper artifacts.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { startLogin } from "@/const";
 import ThreadlineAutomation from "@/components/ThreadlineAutomation";
 import {
   ArrowDownRight,
@@ -103,7 +104,7 @@ export default function Threadline() {
           <button onClick={() => { scrollToId("use-cases-threadline"); setMobileOpen(false); }}>Who it’s for</button>
           <button onClick={() => { scrollToId("trust-threadline"); setMobileOpen(false); }}>Our approach</button>
         </nav>
-        <div className="threadline-header-actions"><button className="threadline-text-button" onClick={() => setShowModal(true)}>Sign in</button><button className="threadline-button threadline-button--orange threadline-button--small" onClick={() => setShowModal(true)}>Join early access <ArrowUpRight size={14} /></button></div>
+        <div className="threadline-header-actions"><button className="threadline-text-button" onClick={() => startLogin()}>Sign in</button><button className="threadline-button threadline-button--orange threadline-button--small" onClick={() => setShowModal(true)}>Join early access <ArrowUpRight size={14} /></button></div>
         <button className="threadline-mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="threadline-nav" onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={20} /> : <Menu size={20} />}</button>
       </header>
 

@@ -26,3 +26,13 @@
 - [ ] Add meaningful alternative text to image elements, or explicitly mark decorative imagery as decorative where no information is conveyed.
 - [ ] Fix low-contrast secondary text, status labels, borders, controls, and Threadline theme tokens while preserving the existing visual direction.
 - [ ] Make every interactive control usable with a keyboard, including tabbed/filter controls, mobile menus, copy/refresh controls, and early-access dialogs; expose selected/expanded state to assistive technology where applicable.
+
+## Authentication and dashboard
+
+- [x] Enable the Webdev server and managed database capabilities required for Manus OAuth sessions and authenticated application data.
+- [x] Apply the checked-in users-table migration to the managed database.
+- [x] Add a `/dashboard` route rendered through the prepared authenticated dashboard layout; show a real sign-in state when unauthenticated and the current user identity/sign-out action when authenticated.
+- [x] Replace placeholder dashboard navigation labels with Quillspark workspace navigation for Overview, Projects, and Public site.
+- [x] Add a responsive workspace overview with recent-work links, activity context, sample workspace metrics, and a writing-desk CTA without presenting sample values as persisted analytics.
+- [x] Connect public Quillspark and Threadline sign-in controls to Manus OAuth and route primary workspace CTAs to `/dashboard`.
+- [x] Add `/dashboard` to the route manifest and verify the server-backed preview/build path.

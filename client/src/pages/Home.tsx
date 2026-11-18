@@ -16,6 +16,7 @@ import {
   WandSparkles,
   X,
 } from "lucide-react";
+import { startLogin } from "@/const";
 
 type Tone = "Clear" | "Warm" | "Direct" | "Playful";
 type WorkMode = "Draft" | "Polish" | "Summarize";
@@ -122,8 +123,8 @@ export default function Home() {
           <button onClick={() => { scrollToId("trust"); closeMobile(); }}>Our approach</button>
         </nav>
         <div className="header-actions">
-          <button className="text-button" onClick={() => setShowModal(true)}>Sign in</button>
-          <button className="button button--cobalt button--small" onClick={() => setShowModal(true)}>Try Quillspark <ArrowUpRight size={15} /></button>
+          <button className="text-button" onClick={() => startLogin()}>Sign in</button>
+          <button className="button button--cobalt button--small" onClick={() => { window.location.href = "/dashboard"; }}>Open workspace <ArrowUpRight size={15} /></button>
         </div>
         <button className="mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="main-nav" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X size={21} /> : <Menu size={21} />}
@@ -137,7 +138,7 @@ export default function Home() {
             <h1>Write what<br /><em>you mean.</em></h1>
             <p className="hero-lede">Quillspark is the AI writing partner for the messy middle between a rough thought and something worth sharing.</p>
             <div className="hero-actions">
-              <button className="button button--cobalt" onClick={() => setShowModal(true)}>Start writing free <ArrowRight size={17} /></button>
+              <button className="button button--cobalt" onClick={() => { window.location.href = "/dashboard"; }}>Start writing free <ArrowRight size={17} /></button>
               <button className="button button--paper" onClick={() => scrollToId("demo")}><span className="play-glyph">▶</span> See how it works</button>
             </div>
             <div className="hero-note"><span className="scribble-arrow">↳</span> No blank-page rituals required.</div>
