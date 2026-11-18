@@ -18,3 +18,11 @@
 - [x] Create a concise testimonial/social-proof section using clearly presented prototype content.
 - [x] Create a final conversion section with repeated call to action and a compact footer with essential navigation.
 - [x] Add responsive behavior, accessible labels, route manifest, and preview-ready styling.
+
+## Visitor assistant and accessibility improvements
+
+- [ ] Add an AI assistant that answers visitor questions using the website’s Quillspark, Threadline, and professional-projects content; keep answers grounded in that content and acknowledge when the site does not provide an answer.
+- [ ] Make the assistant available site-wide from a labelled disclosure button and accessible panel with keyboard navigation, visible focus, Escape-to-close, focus restoration, a live message region, and usable suggested prompts.
+- [ ] Add meaningful alternative text to image elements, or explicitly mark decorative imagery as decorative where no information is conveyed.
+- [ ] Fix low-contrast secondary text, status labels, borders, controls, and Threadline theme tokens while preserving the existing visual direction.
+- [ ] Make every interactive control usable with a keyboard, including tabbed/filter controls, mobile menus, copy/refresh controls, and early-access dialogs; expose selected/expanded state to assistive technology where applicable.

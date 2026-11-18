@@ -101,13 +101,13 @@ export default function Projects() {
           <ProjectMark />
           <span>quillspark</span>
         </a>
-        <nav className={mobileOpen ? "projects-nav projects-nav--open" : "projects-nav"} aria-label="Projects navigation">
+        <nav id="projects-nav" className={mobileOpen ? "projects-nav projects-nav--open" : "projects-nav"} aria-label="Projects navigation">
           <a href="/">Home</a>
           <a href="#selected-work" onClick={() => setMobileOpen(false)}>Selected work</a>
           <a href="#approach" onClick={() => setMobileOpen(false)}>Approach</a>
         </nav>
         <a className="projects-header-link" href="#contact">Let’s work together <ArrowUpRight size={15} /></a>
-        <button className="projects-mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} onClick={() => setMobileOpen((open) => !open)}>
+        <button className="projects-mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="projects-nav" onClick={() => setMobileOpen((open) => !open)}>
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </header>
@@ -144,16 +144,16 @@ export default function Projects() {
           </div>
           <div className="projects-filter-bar" role="tablist" aria-label="Filter projects by category">
             <span><Layers3 size={15} /> Filter by</span>
-            <div>{categories.map((item) => <button key={item} className={category === item ? "projects-filter projects-filter--active" : "projects-filter"} onClick={() => setCategory(item)} role="tab" aria-selected={category === item}>{item}</button>)}</div>
+            <div>{categories.map((item) => <button key={item} className={category === item ? "projects-filter projects-filter--active" : "projects-filter"} onClick={() => setCategory(item)} role="tab" aria-selected={category === item} aria-controls="projects-grid">{item}</button>)}</div>
             <small>{filteredProjects.length} projects</small>
           </div>
-          <div className="projects-grid">
+          <div className="projects-grid" id="projects-grid" role="tabpanel">
             {filteredProjects.map((project) => (
               <article className={`project-card project-card--${project.accent}`} key={project.title}>
                 <div className="project-card-top"><span>{project.number}</span><span>{project.year} · {project.category}</span><ArrowUpRight size={17} /></div>
                 <div className="project-card-art"><div className="project-art-orbit" /><div className="project-art-note"><span>{project.metric}</span><b>✦</b></div><div className="project-art-index">{project.number}</div></div>
                 <div className="project-card-copy"><h3>{project.title}</h3><p>{project.summary}</p><div className="project-card-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><div className="project-card-outcome"><span>Outcome</span><strong>{project.outcome}</strong></div></div>
-                <button className="project-card-link">View project <ArrowRight size={15} /></button>
+                <a className="project-card-link" href={project.title === "Quillspark" ? "/" : project.title === "Threadline" ? "/threadline" : "#contact"}>View project <ArrowRight size={15} /></a>
               </article>
             ))}
           </div>

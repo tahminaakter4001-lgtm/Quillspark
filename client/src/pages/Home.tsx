@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -72,6 +72,19 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [showBefore, setShowBefore] = useState(true);
 
+  useEffect(() => {
+    if (!showModal) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowModal(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showModal]);
+
+  useEffect(() => {
+    if (showModal) document.getElementById("signup-close")?.focus();
+  }, [showModal]);
+
   const draft = useMemo(() => {
     const tonePrefix: Record<Tone, string> = {
       Clear: "Here’s a clear starting point: ",
@@ -102,7 +115,7 @@ export default function Home() {
           <Mark />
           <span>quillspark</span>
         </a>
-        <nav className={mobileOpen ? "main-nav main-nav--open" : "main-nav"} aria-label="Main navigation">
+        <nav id="main-nav" className={mobileOpen ? "main-nav main-nav--open" : "main-nav"} aria-label="Main navigation">
           <button onClick={() => { scrollToId("how-it-works"); closeMobile(); }}>How it works</button>
           <button onClick={() => { scrollToId("capabilities"); closeMobile(); }}>Capabilities</button>
           <button onClick={() => { scrollToId("use-cases"); closeMobile(); }}>Who it’s for</button>
@@ -112,7 +125,7 @@ export default function Home() {
           <button className="text-button" onClick={() => setShowModal(true)}>Sign in</button>
           <button className="button button--cobalt button--small" onClick={() => setShowModal(true)}>Try Quillspark <ArrowUpRight size={15} /></button>
         </div>
-        <button className="mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="mobile-menu" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="main-nav" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
       </header>
@@ -204,7 +217,7 @@ export default function Home() {
           <div className="use-case-list">{useCases.map((item) => <article key={item.tag} className="use-case-row"><span className="use-case-tag">{item.tag}</span><h3>{item.title}</h3><p>{item.text}</p><span className="use-case-sample">“{item.sample}”</span><ArrowUpRight size={19} /></article>)}</div>
         </section>
 
-        <section className="comparison section-pad"><div className="comparison-header"><div className="eyebrow"><span className="eyebrow-dot" /> A little proof, in plain sight</div><h2>Same thought.<br /><em>Better shape.</em></h2><div className="comparison-toggle"><button className={showBefore ? "toggle-active" : ""} onClick={() => setShowBefore(true)}>Before</button><button className={!showBefore ? "toggle-active" : ""} onClick={() => setShowBefore(false)}>After</button></div></div><div className="comparison-card"><div className="comparison-label">{showBefore ? "The rough note" : "The Quillspark version"}</div><p className={showBefore ? "comparison-text comparison-text--before" : "comparison-text"}>{showBefore ? "I think maybe the main thing is that people want tools that help them write better but not make them feel like the writing isn't theirs?" : "People want help writing better—not a machine that writes over them. Quillspark gives you momentum while keeping the words recognizably yours."}</p><div className="comparison-footer"><span>{showBefore ? "one thought, still finding its shape" : "clearer, without losing the point of view"}</span><button onClick={() => setShowBefore(!showBefore)}>{showBefore ? "See the shift →" : "See the rough note →"}</button></div></div></section>
+        <section className="comparison section-pad"><div className="comparison-header"><div className="eyebrow"><span className="eyebrow-dot" /> A little proof, in plain sight</div><h2>Same thought.<br /><em>Better shape.</em></h2><div className="comparison-toggle"><button className={showBefore ? "toggle-active" : ""} aria-pressed={showBefore} onClick={() => setShowBefore(true)}>Before</button><button className={!showBefore ? "toggle-active" : ""} aria-pressed={!showBefore} onClick={() => setShowBefore(false)}>After</button></div></div><div className="comparison-card"><div className="comparison-label">{showBefore ? "The rough note" : "The Quillspark version"}</div><p className={showBefore ? "comparison-text comparison-text--before" : "comparison-text"}>{showBefore ? "I think maybe the main thing is that people want tools that help them write better but not make them feel like the writing isn't theirs?" : "People want help writing better—not a machine that writes over them. Quillspark gives you momentum while keeping the words recognizably yours."}</p><div className="comparison-footer"><span>{showBefore ? "one thought, still finding its shape" : "clearer, without losing the point of view"}</span><button onClick={() => setShowBefore(!showBefore)}>{showBefore ? "See the shift →" : "See the rough note →"}</button></div></div></section>
 
         <section className="trust section-pad" id="trust"><div className="trust-copy"><div className="eyebrow"><span className="eyebrow-dot" /> A collaborator, not a replacement</div><h2>Your voice<br /><em>stays yours.</em></h2><p>Quillspark is built to help you think, not think for you. Every suggestion is an invitation. You decide what stays, what changes, and what leaves the page.</p><div className="trust-points"><div><LockKeyhole size={18} /><span><b>Private by default.</b><br />Your work is yours to manage.</span></div><div><Check size={18} /><span><b>Always in control.</b><br />Review, revise, or ignore every suggestion.</span></div></div></div><div className="trust-card"><div className="trust-card-note">a note from the margin</div><div className="trust-quote">“The useful thing about AI isn’t that it has the words. It’s that it can help you find yours.”</div><div className="trust-signature">— the Quillspark team <span>✦</span></div></div></section>
 
@@ -215,7 +228,7 @@ export default function Home() {
 
       <footer className="site-footer"><a className="wordmark wordmark--footer" href="#top"><Mark small /><span>quillspark</span></a><p>From rough thought to right words.</p><div className="footer-links"><button onClick={() => scrollToId("how-it-works")}>How it works</button><button onClick={() => scrollToId("capabilities")}>Capabilities</button><button onClick={() => scrollToId("trust")}>Privacy</button><button onClick={() => setShowModal(true)}>Contact</button></div><span className="footer-copy">© 2026 Quillspark</span></footer>
 
-      {showModal && <div className="modal-backdrop" role="presentation" onClick={() => setShowModal(false)}><div className="signup-modal" role="dialog" aria-modal="true" aria-labelledby="signup-title" onClick={(event) => event.stopPropagation()}><button className="modal-close" aria-label="Close" onClick={() => setShowModal(false)}><X size={18} /></button><Mark /><div className="eyebrow"><span className="eyebrow-dot" /> Early access</div><h2 id="signup-title">A little more spark<br /><em>is on the way.</em></h2><p>Quillspark is in prototype. Leave your email and we’ll let you know when the writing room opens.</p><input aria-label="Email address" type="email" placeholder="you@example.com" /><button className="button button--cobalt" onClick={() => setShowModal(false)}>Join the list <ArrowRight size={17} /></button><span className="modal-fineprint">Prototype experience · No spam, ever.</span></div></div>}
+      {showModal && <div className="modal-backdrop" role="presentation" onClick={() => setShowModal(false)}><div className="signup-modal" role="dialog" aria-modal="true" aria-labelledby="signup-title" aria-describedby="signup-description" onClick={(event) => event.stopPropagation()}><button id="signup-close" type="button" className="modal-close" aria-label="Close sign-up dialog" onClick={() => setShowModal(false)}><X size={18} /></button><Mark /><div className="eyebrow"><span className="eyebrow-dot" /> Early access</div><h2 id="signup-title">A little more spark<br /><em>is on the way.</em></h2><p id="signup-description">Quillspark is in prototype. Leave your email and we’ll let you know when the writing room opens.</p><label className="sr-only" htmlFor="signup-email">Email address</label><input id="signup-email" type="email" placeholder="you@example.com" /><button type="button" className="button button--cobalt" onClick={() => setShowModal(false)}>Join the list <ArrowRight size={17} /></button><span className="modal-fineprint">Prototype experience · No spam, ever.</span></div></div>}
     </div>
   );
 }
