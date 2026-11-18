@@ -36,3 +36,11 @@
 - [x] Add a responsive workspace overview with recent-work links, activity context, sample workspace metrics, and a writing-desk CTA without presenting sample values as persisted analytics.
 - [x] Connect public Quillspark and Threadline sign-in controls to Manus OAuth and route primary workspace CTAs to `/dashboard`.
 - [x] Add `/dashboard` to the route manifest and verify the server-backed preview/build path.
+
+## Custom notification center
+
+- [x] Add a site-wide Signals trigger with an unread badge and an accessible notification panel.
+- [x] Add contextual Quillspark and Threadline notices that link to the existing `/threadline#automations-threadline` and `/dashboard` destinations.
+- [x] Add read, mark-all-read, Escape-to-close, outside-click dismissal, and browser-local persistence behavior.
+- [x] Label the behavior as custom in-app notifications and keep it backend/provider-free for the prototype.
+- [x] Add responsive styling that avoids the existing visitor-assistant control and preserves the Quillspark visual system.

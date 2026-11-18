@@ -39,3 +39,7 @@ The public Quillspark and Threadline sign-in controls should launch Manus OAuth,
 - **Typography system:** Newsreader for narrative content and headings, DM Mono for controls, labels, and status text. Keep body copy at readable sizes with stronger contrast.
 - **Brand essence:** A thoughtful AI writing and decision-work companion for people who want clearer work without giving up their voice. Personality: editorial, warm, precise.
 - **Brand voice:** Clear, observant, quietly confident. Example lines: “Ask about Quillspark, Threadline, or the work behind the site.” / “I can only answer from what this site explains.”
+
+## Custom notification center extension
+
+Add a site-wide “Signals” notification center from `client/src/App.tsx` so the same branded notification affordance is available on the public pages, Threadline, Projects, and the authenticated dashboard. Keep the first version lightweight and honest: two curated product notices link to real destinations, unread/read state is stored in the current browser’s local storage, the panel supports Escape and outside-click dismissal, and the footer explains that this is custom in-app notification UI rather than server push. Use the existing Quillspark paper, cobalt, yellow, serif, and mono system; avoid adding a backend, database table, or external notification provider for this prototype.
