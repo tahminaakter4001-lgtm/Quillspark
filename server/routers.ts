@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM, type Message as LlmMessage } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -25,6 +25,137 @@ const visitorAssistantPrompt = `You are the visitor guide for the Quillspark web
 
 WEBSITE CONTENT:
 ${websiteKnowledge}`;
+
+const imageTool = z.enum([
+  "text-to-image",
+  "image-editing",
+  "logo",
+  "social",
+  "infographic",
+  "product",
+]);
+
+const imageRequest = z.object({
+  tool: imageTool,
+  prompt: z.string().trim().min(3).max(4000),
+  style: z.enum([
+    "Premium",
+    "Modern minimalist",
+    "Creative & artistic",
+    "Photorealistic",
+    "Editorial",
+    "Illustration",
+  ]),
+  aspectRatio: z.enum(["1:1", "4:5", "16:9"]),
+  imageDataUrl: z.string().max(14_000_000).optional(),
+});
+
+const imageStyleGuidance: Record<z.infer<typeof imageTool>, string> = {
+  "text-to-image": "Create a polished original image.",
+  "image-editing": "Edit the supplied reference image according to the request. Preserve important subject identity and composition unless asked otherwise.",
+  logo: "Create a distinctive, clean logo concept. Keep the mark legible and avoid mockup-heavy presentation.",
+  social: "Create a polished social media graphic with clear visual hierarchy and safe margins.",
+  infographic: "Create a clear infographic with a logical visual hierarchy, concise labels, and readable layout.",
+  product: "Create a professional product image using the supplied reference as the source of truth for the product's appearance.",
+};
+
+async function generateStudioImage(input: z.infer<typeof imageRequest>) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Image generation is not configured. Add OPENAI_API_KEY to the server environment.",
+    });
+  }
+
+  const requiresReference = input.tool === "image-editing" || input.tool === "product";
+  if (requiresReference && !input.imageDataUrl) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Upload a reference image for this tool before generating.",
+    });
+  }
+
+  if (input.imageDataUrl && !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(input.imageDataUrl)) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "The reference image format is not supported." });
+  }
+
+  const size = input.aspectRatio === "16:9"
+    ? "1536x1024"
+    : input.aspectRatio === "4:5"
+      ? "1024x1536"
+      : "1024x1024";
+  const prompt = [
+    imageStyleGuidance[input.tool],
+    `Visual style: ${input.style}.`,
+    `Composition target: ${input.aspectRatio} aspect ratio.`,
+    input.prompt,
+  ].join("\n\n");
+
+  const isEdit = Boolean(input.imageDataUrl);
+  const endpoint = isEdit
+    ? "https://api.openai.com/v1/images/edits"
+    : "https://api.openai.com/v1/images/generations";
+  const payload = isEdit
+    ? {
+        model: "gpt-image-2.6-flare",
+        images: [{ image_url: input.imageDataUrl }],
+        prompt,
+        size,
+        quality: "medium",
+        output_format: "png",
+      }
+    : {
+        model: "gpt-image-2.6-flare",
+        prompt,
+        size,
+        quality: "medium",
+        output_format: "png",
+      };
+
+  let response: Response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(120_000),
+    });
+  } catch (error) {
+    console.error("Image provider request failed", error);
+    throw new TRPCError({ code: "BAD_GATEWAY", message: "The image service could not be reached. Please try again." });
+  }
+
+  if (!response.ok) {
+    const providerError = await response.json().catch(() => null) as { error?: { message?: string } } | null;
+    console.error("Image provider returned an error", {
+      status: response.status,
+      message: providerError?.error?.message,
+    });
+    const message = response.status === 401 || response.status === 403
+      ? "The image service rejected its API credentials. Check the server configuration."
+      : response.status === 429
+        ? "The image service is busy or its usage limit has been reached. Try again later."
+        : "The image could not be generated. Please revise the prompt and try again.";
+    throw new TRPCError({ code: "BAD_GATEWAY", message });
+  }
+
+  const result = await response.json() as {
+    data?: Array<{ b64_json?: string; revised_prompt?: string }>;
+  };
+  const image = result.data?.[0];
+  if (!image?.b64_json) {
+    throw new TRPCError({ code: "BAD_GATEWAY", message: "The image service returned no image. Please try again." });
+  }
+
+  return {
+    imageDataUrl: `data:image/png;base64,${image.b64_json}`,
+    revisedPrompt: image.revised_prompt ?? null,
+  };
+}
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -74,6 +205,12 @@ export const appRouter = router({
           });
         }
       }),
+  }),
+
+  imageStudio: router({
+    generate: protectedProcedure
+      .input(imageRequest)
+      .mutation(async ({ input }) => generateStudioImage(input)),
   }),
 
   // TODO: add feature routers here, e.g.
