@@ -216,7 +216,7 @@ export const appRouter = router({
   writing: router({
     process: protectedProcedure
       .input(z.object({
-        task: z.enum(["paraphrase", "translate", "grammar", "summarize", "expand", "draft", "seo", "headline"]),
+        task: z.enum(["paraphrase", "translate", "grammar", "summarize", "expand", "draft", "seo", "headline", "terminology-audit"]),
         text: z.string().trim().min(1).max(12000),
         sourceLanguage: z.enum(["auto", "bn", "en"]).default("auto"),
         targetLanguage: z.enum(["bn", "en", "both"]).default("both"),
@@ -233,6 +233,7 @@ export const appRouter = router({
           draft: "Create a draft based only on the supplied source text and instructions. Clearly avoid inventing factual claims.",
           seo: "Improve the supplied text for SEO while preserving factual accuracy. Suggest a natural focus keyword and metadata only when supported by the text.",
           headline: "Generate concise, accurate headline options based only on the supplied text.",
+          "terminology-audit": "Audit terminology consistency against the glossary and rules supplied by the user. If no glossary is provided, report only clear inconsistencies and do not invent approved terms. Return a structured table with source term, recommended term, context, severity, and review status.",
         };
         const system = [
           "You are QuillSpark, a careful Bengali-English writing assistant.",
