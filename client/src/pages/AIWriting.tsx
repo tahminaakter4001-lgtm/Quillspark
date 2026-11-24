@@ -15,6 +15,7 @@ const tasks = [
   { id: "draft", label: "Draft assistant", icon: WandSparkles },
   { id: "seo", label: "SEO optimizer", icon: Sparkles },
   { id: "headline", label: "Headline generator", icon: FileText },
+  { id: "terminology-audit", label: "Terminology Audit", icon: Clipboard },
 ] as const;
 
 type Task = typeof tasks[number]["id"];
@@ -69,7 +70,7 @@ export default function AIWriting() {
               <label className="space-y-1 text-sm"><span className="font-medium">Source language</span><select value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value as typeof sourceLanguage)} className="h-10 w-full rounded-md border bg-background px-3"><option value="auto">Auto detect</option><option value="bn">Bengali</option><option value="en">English</option></select></label>
               <label className="space-y-1 text-sm"><span className="font-medium">Output language</span><select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value as typeof targetLanguage)} className="h-10 w-full rounded-md border bg-background px-3"><option value="both">Preserve / Both</option><option value="bn">Bengali</option><option value="en">English</option></select></label>
               <label className="space-y-1 text-sm"><span className="font-medium">Writing tone</span><select value={tone} onChange={(e) => setTone(e.target.value as typeof tone)} className="h-10 w-full rounded-md border bg-background px-3"><option value="neutral">Neutral</option><option value="professional">Professional</option><option value="academic">Academic</option><option value="creative">Creative</option><option value="journalistic">Journalistic</option><option value="friendly">Friendly</option></select></label>
-              <label className="space-y-1 text-sm"><span className="font-medium">Extra instructions</span><input value={instructions} onChange={(e) => setInstructions(e.target.value)} maxLength={2000} placeholder="Optional guidance" className="h-10 w-full rounded-md border bg-background px-3 text-sm" /></label>
+              <label className="space-y-1 text-sm"><span className="font-medium">Extra instructions</span><input value={instructions} onChange={(e) => setInstructions(e.target.value)} maxLength={2000} placeholder="Paste glossary terms and audit rules here" className="h-10 w-full rounded-md border bg-background px-3 text-sm" /></label>
             </div>
             <Button onClick={run} disabled={mutation.isPending || !source.trim()} className="w-full gap-2"><WandSparkles size={16} />{mutation.isPending ? "Working..." : "Generate writing"}</Button>
           </section>
