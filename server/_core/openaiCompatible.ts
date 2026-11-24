@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import type { Express, Request, Response } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
 import { invokeLLM, type Message } from "./llm";
 
 const MODEL_ID = "quillspark-writing";
@@ -121,7 +121,7 @@ function sendStream(res: Response, id: string, model: string, content: string) {
 }
 
 export function registerOpenAICompatibleRoutes(app: Express) {
-  const cors = (_req: Request, res: Response, next: () => void) => {
+  const cors = (_req: Request, res: Response, next: NextFunction) => {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
