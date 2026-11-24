@@ -5,6 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { writingInputSchema } from "./writing-schema";
 
 const websiteKnowledge = `
 Quillspark is an AI writing partner for the messy middle between a rough thought and something worth sharing. It helps people find the shape, sharpen the language, and keep their voice in the room. Its featured capabilities are brainstorming, rewriting, summarizing, expanding, proofreading, and shifting tone. The demo describes three modes: Draft, Polish, and Summarize. Quillspark is aimed at marketers, students, professionals, and creative writers. The site says it is private by default, keeps the user in control, and treats every suggestion as an invitation rather than a replacement.
@@ -215,14 +216,7 @@ export const appRouter = router({
 
   writing: router({
     process: protectedProcedure
-      .input(z.object({
-        task: z.enum(["paraphrase", "translate", "grammar", "summarize", "expand", "draft", "seo", "headline", "terminology-audit"]),
-        text: z.string().trim().min(1).max(12000),
-        sourceLanguage: z.enum(["auto", "bn", "en"]).default("auto"),
-        targetLanguage: z.enum(["bn", "en", "both"]).default("both"),
-        tone: z.enum(["neutral", "professional", "academic", "creative", "journalistic", "friendly"]).default("neutral"),
-        instructions: z.string().trim().max(2000).optional(),
-      }))
+      .input(writingInputSchema)
       .mutation(async ({ input }) => {
         const taskInstructions: Record<typeof input.task, string> = {
           paraphrase: "Rewrite the supplied text naturally while preserving its meaning and voice.",
