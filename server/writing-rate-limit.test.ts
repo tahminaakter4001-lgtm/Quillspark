@@ -5,7 +5,11 @@ import { WritingRateLimiter } from "./writing-rate-limit";
 describe("WritingRateLimiter", () => {
   it("limits each user to five accepted requests per rolling minute", () => {
     const limiter = new WritingRateLimiter();
-    const releases = Array.from({ length: 5 }, (_, index) => limiter.acquire("user-1", 1_000 + index));
+    const releases = Array.from({ length: 5 }, (_, index) => {
+      const release = limiter.acquire("user-1", 1_000 + index);
+      release();
+      return release;
+    });
     expect(() => limiter.acquire("user-1", 1_005)).toThrowError(TRPCError);
     releases.forEach((release) => release());
     expect(() => limiter.acquire("user-1", 61_001)).not.toThrow();
@@ -24,7 +28,11 @@ describe("WritingRateLimiter", () => {
 
   it("keeps separate users' quotas independent", () => {
     const limiter = new WritingRateLimiter();
-    const releases = Array.from({ length: 5 }, (_, index) => limiter.acquire("user-a", 1_000 + index));
+    const releases = Array.from({ length: 5 }, (_, index) => {
+      const release = limiter.acquire("user-a", 1_000 + index);
+      release();
+      return release;
+    });
     expect(() => limiter.acquire("user-a", 1_006)).toThrowError(TRPCError);
     expect(() => limiter.acquire("user-b", 1_006)).not.toThrow();
     releases.forEach((release) => release());
