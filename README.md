@@ -18,3 +18,14 @@ Platform login, storage, payments and service contracts live in its shared refer
 `server/_core/publicConfig.ts` exposes only named public runtime values. Private keys stay server-side. The platform serves managed `/manus-storage/` assets; the application does not register a second proxy.
 
 Platform configuration is readable and editable through `webdev.config`. Default settings are initial values, not enforced constraints. The agent may modify the files, commands and configuration or follow the flexible guide for another stack.
+
+## Local ChatGPTBox API
+
+QuillSpark includes an OpenAI-compatible local API for ChatGPTBox. Configure `QUILLSPARK_API_KEY` in the server-side `.env` file, keep the upstream `MANUS_API_URL` and `MANUS_API_KEY` settings required by the existing writing engine, then run `pnpm dev`.
+
+- Local base URL: `http://127.0.0.1:3000/v1`
+- Model: `quillspark-writing`
+- Chat endpoint: `POST /v1/chat/completions`
+- Model list: `GET /v1/models`
+
+See [docs/CHATGPTBOX_LOCAL_SETUP.md](docs/CHATGPTBOX_LOCAL_SETUP.md) for token creation, local startup, ChatGPTBox fields, curl verification, supported scope, and security notes. Keep all API secrets out of Git.
