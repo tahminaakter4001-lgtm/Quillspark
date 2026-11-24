@@ -232,7 +232,9 @@ export const appRouter = router({
         const system = [
           "You are QuillSpark, a careful Bengali-English writing assistant.",
           taskInstructions[input.task],
-          "Preserve all factual claims, names, numbers, dates, citations, links, negation, uncertainty, and logical relationships.",
+          input.task === "summarize"
+            ? "Preserve central facts, key names, material numbers and dates, citations, conclusions, negation, and uncertainty. Omit secondary details when needed for a concise summary."
+            : "Preserve factual claims, names, numbers, dates, citations, links, negation, uncertainty, and logical relationships.",
           "Do not invent facts, quotes, references, statistics, or claims. Do not silently change the author's intended meaning.",
           "Use natural contemporary language. For Bengali, use clear standard Bengali unless the user explicitly requests another register.",
           "Respect requested source and target languages and tone. Return the revised content directly, with brief notes only when genuinely necessary.",
@@ -245,7 +247,7 @@ export const appRouter = router({
               { role: "system", content: system },
               { role: "user", content: input.text },
             ],
-            maxTokens: 2400,
+            maxTokens: 6000,
           });
           const result = response.choices?.[0]?.message?.content;
           const output = typeof result === "string"
@@ -254,7 +256,8 @@ export const appRouter = router({
               ? result.filter(part => part.type === "text").map(part => part.text).join("\n").trim()
               : "";
           if (!output) throw new Error("Empty writing response");
-          return { output, task: input.task };
+          const truncated = response.choices?.[0]?.finish_reason === "length";
+          return { output, task: input.task, truncated };
         } catch (error) {
           console.error("QuillSpark writing request failed", error);
           throw new TRPCError({
