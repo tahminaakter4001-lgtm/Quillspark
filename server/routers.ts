@@ -5,6 +5,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { writingInputSchema } from "./writing-schema";
+import { writingRateLimiter } from "./writing-rate-limit";
 
 const websiteKnowledge = `
 Quillspark is an AI writing partner for the messy middle between a rough thought and something worth sharing. It helps people find the shape, sharpen the language, and keep their voice in the room. Its featured capabilities are brainstorming, rewriting, summarizing, expanding, proofreading, and shifting tone. The demo describes three modes: Draft, Polish, and Summarize. Quillspark is aimed at marketers, students, professionals, and creative writers. The site says it is private by default, keeps the user in control, and treats every suggestion as an invitation rather than a replacement.
@@ -211,6 +213,65 @@ export const appRouter = router({
     generate: protectedProcedure
       .input(imageRequest)
       .mutation(async ({ input }) => generateStudioImage(input)),
+  }),
+
+  writing: router({
+    process: protectedProcedure
+      .input(writingInputSchema)
+      .mutation(async ({ input, ctx }) => {
+        const releaseRateLimit = writingRateLimiter.acquire(String(ctx.user.id));
+        try {
+        const taskInstructions: Record<typeof input.task, string> = {
+          paraphrase: "Rewrite the supplied text naturally while preserving its meaning and voice.",
+          translate: "Translate the supplied text accurately into the requested target language. Preserve names, numbers, dates, citations, and formatting.",
+          grammar: "Correct grammar, spelling, punctuation, and clarity while preserving meaning.",
+          summarize: "Summarize the supplied text without adding facts or changing its conclusions.",
+          expand: "Expand the supplied text using only information already present. Do not invent facts or sources.",
+          draft: "Create a draft based only on the supplied source text and instructions. Clearly avoid inventing factual claims.",
+          seo: "Improve the supplied text for SEO while preserving factual accuracy. Suggest a natural focus keyword and metadata only when supported by the text.",
+          headline: "Generate concise, accurate headline options based only on the supplied text.",
+          "terminology-audit": "Audit terminology consistency against the glossary and rules supplied by the user. If no glossary is provided, report only clear inconsistencies and do not invent approved terms. Return a structured table with source term, recommended term, context, severity, and review status.",
+        };
+        const system = [
+          "You are QuillSpark, a careful Bengali-English writing assistant.",
+          taskInstructions[input.task],
+          input.task === "summarize"
+            ? "Preserve central facts, key names, material numbers and dates, citations, conclusions, negation, and uncertainty. Omit secondary details when needed for a concise summary."
+            : "Preserve factual claims, names, numbers, dates, citations, links, negation, uncertainty, and logical relationships.",
+          "Do not invent facts, quotes, references, statistics, or claims. Do not silently change the author's intended meaning.",
+          "Use natural contemporary language. For Bengali, use clear standard Bengali unless the user explicitly requests another register.",
+          "Respect requested source and target languages and tone. Return the revised content directly, with brief notes only when genuinely necessary.",
+          `Task: ${input.task}; source language: ${input.sourceLanguage}; target language: ${input.targetLanguage}; tone: ${input.tone}.`,
+          input.instructions ? `Additional user instructions: ${input.instructions}` : "",
+        ].filter(Boolean).join("\n");
+        try {
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: input.text },
+            ],
+            maxTokens: 6000,
+          });
+          const result = response.choices?.[0]?.message?.content;
+          const output = typeof result === "string"
+            ? result.trim()
+            : Array.isArray(result)
+              ? result.filter(part => part.type === "text").map(part => part.text).join("\n").trim()
+              : "";
+          if (!output) throw new Error("Empty writing response");
+          const truncated = response.choices?.[0]?.finish_reason === "length";
+          return { output, task: input.task, truncated };
+        } catch (error) {
+          console.error("QuillSpark writing request failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "The writing service is temporarily unavailable. Please try again.",
+          });
+        }
+        } finally {
+          releaseRateLimit();
+        }
+      }),
   }),
 
   // TODO: add feature routers here, e.g.
