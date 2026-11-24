@@ -213,6 +213,63 @@ export const appRouter = router({
       .mutation(async ({ input }) => generateStudioImage(input)),
   }),
 
+  writing: router({
+    process: protectedProcedure
+      .input(z.object({
+        task: z.enum(["paraphrase", "translate", "grammar", "summarize", "expand", "draft", "seo", "headline"]),
+        text: z.string().trim().min(1).max(12000),
+        sourceLanguage: z.enum(["auto", "bn", "en"]).default("auto"),
+        targetLanguage: z.enum(["bn", "en", "both"]).default("both"),
+        tone: z.enum(["neutral", "professional", "academic", "creative", "journalistic", "friendly"]).default("neutral"),
+        instructions: z.string().trim().max(2000).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const taskInstructions: Record<typeof input.task, string> = {
+          paraphrase: "Rewrite the supplied text naturally while preserving its meaning and voice.",
+          translate: "Translate the supplied text accurately into the requested target language. Preserve names, numbers, dates, citations, and formatting.",
+          grammar: "Correct grammar, spelling, punctuation, and clarity while preserving meaning.",
+          summarize: "Summarize the supplied text without adding facts or changing its conclusions.",
+          expand: "Expand the supplied text using only information already present. Do not invent facts or sources.",
+          draft: "Create a draft based only on the supplied source text and instructions. Clearly avoid inventing factual claims.",
+          seo: "Improve the supplied text for SEO while preserving factual accuracy. Suggest a natural focus keyword and metadata only when supported by the text.",
+          headline: "Generate concise, accurate headline options based only on the supplied text.",
+        };
+        const system = [
+          "You are QuillSpark, a careful Bengali-English writing assistant.",
+          taskInstructions[input.task],
+          "Preserve all factual claims, names, numbers, dates, citations, links, negation, uncertainty, and logical relationships.",
+          "Do not invent facts, quotes, references, statistics, or claims. Do not silently change the author's intended meaning.",
+          "Use natural contemporary language. For Bengali, use clear standard Bengali unless the user explicitly requests another register.",
+          "Respect requested source and target languages and tone. Return the revised content directly, with brief notes only when genuinely necessary.",
+          `Task: ${input.task}; source language: ${input.sourceLanguage}; target language: ${input.targetLanguage}; tone: ${input.tone}.`,
+          input.instructions ? `Additional user instructions: ${input.instructions}` : "",
+        ].filter(Boolean).join("\\n");
+        try {
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: input.text },
+            ],
+            maxTokens: 2400,
+          });
+          const result = response.choices?.[0]?.message?.content;
+          const output = typeof result === "string"
+            ? result.trim()
+            : Array.isArray(result)
+              ? result.filter(part => part.type === "text").map(part => part.text).join("\\n").trim()
+              : "";
+          if (!output) throw new Error("Empty writing response");
+          return { output, task: input.task };
+        } catch (error) {
+          console.error("QuillSpark writing request failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "The writing service is temporarily unavailable. Please try again.",
+          });
+        }
+      }),
+  }),
+
   // TODO: add feature routers here, e.g.
   // todo: router({
   //   list: protectedProcedure.query(({ ctx }) =>
