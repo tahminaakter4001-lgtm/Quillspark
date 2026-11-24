@@ -243,7 +243,7 @@ export const appRouter = router({
           "Respect requested source and target languages and tone. Return the revised content directly, with brief notes only when genuinely necessary.",
           `Task: ${input.task}; source language: ${input.sourceLanguage}; target language: ${input.targetLanguage}; tone: ${input.tone}.`,
           input.instructions ? `Additional user instructions: ${input.instructions}` : "",
-        ].filter(Boolean).join("\\n");
+        ].filter(Boolean).join("\n");
         try {
           const response = await invokeLLM({
             messages: [
@@ -256,7 +256,7 @@ export const appRouter = router({
           const output = typeof result === "string"
             ? result.trim()
             : Array.isArray(result)
-              ? result.filter(part => part.type === "text").map(part => part.text).join("\\n").trim()
+              ? result.filter(part => part.type === "text").map(part => part.text).join("\n").trim()
               : "";
           if (!output) throw new Error("Empty writing response");
           return { output, task: input.task };
