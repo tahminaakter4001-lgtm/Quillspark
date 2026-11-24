@@ -15,6 +15,11 @@ Supported tasks:
 
 The endpoint validates task, text length, source/target language, tone, and optional instructions with Zod. It uses the existing server-side LLM adapter; provider credentials remain in the server environment and are not exposed to the browser.
 
+
+## AI writing request protection
+
+The writing endpoint applies an authenticated per-user in-process limit: up to 5 accepted requests per rolling 60 seconds and no more than 2 concurrent requests. The limiter rejects excess requests with tRPC `TOO_MANY_REQUESTS` before the LLM provider is invoked. This is a single-process safeguard; deployments with multiple application instances or serverless workers must replace the in-memory store with a shared atomic Redis/database limiter before relying on a global quota.
+
 ## Existing capabilities retained
 
 - Image Creation Studio remains at `/dashboard/images`.
