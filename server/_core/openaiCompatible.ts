@@ -155,6 +155,10 @@ export function registerOpenAICompatibleRoutes(app: Express) {
       return sendError(res, 413, "Request body exceeds the 1 MB limit.");
     }
 
+    if (Buffer.byteLength(JSON.stringify(req.body ?? null), "utf8") > MAX_BODY_BYTES) {
+      return sendError(res, 413, "Request body exceeds the 1 MB limit.");
+    }
+
     const parsed = validateChatRequest(req.body);
     if (!parsed.value) return sendError(res, 400, parsed.error ?? "Invalid request.");
     const input = parsed.value;
