@@ -16,6 +16,12 @@ Create a random secret with at least 32 characters. For example:
 openssl rand -hex 32
 ```
 
+On Windows PowerShell, you can generate a 32-byte random value with:
+
+```powershell
+[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+```
+
 Add the generated value to the repository-root `.env` file. Do not commit this file:
 
 ```dotenv
