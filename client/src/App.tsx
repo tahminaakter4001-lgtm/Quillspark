@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import AIWriting from "./pages/AIWriting";
 import ImageStudio from "./pages/ImageStudio";
+import CameraStudio from "./pages/CameraStudio";
 import Projects from "./pages/Projects";
 import Threadline from "./pages/Threadline";
 
@@ -18,6 +19,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/dashboard/camera"} component={CameraStudio} />
       <Route path={"/dashboard/images"} component={ImageStudio} />
       <Route path={"/dashboard/writing"} component={AIWriting} />
       <Route path={"/threadline"} component={Threadline} />
