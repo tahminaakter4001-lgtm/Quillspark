@@ -20,8 +20,8 @@ function buildPreview(files: WorkspaceFile[]) {
   const html = files.find((file) => file.language === "html")?.content ?? "";
   const css = files.filter((file) => file.language === "css").map((file) => file.content).join("\n");
   const js = files.filter((file) => file.language === "javascript").map((file) => file.content).join("\n");
-  const safeCss = css.replace(/<\\/style/gi, "<\\\\/style");
-  const safeJs = js.replace(/<\\/script/gi, "<\\\\/script");
+  const safeCss = css.split("</style").join("<\\/style");
+  const safeJs = js.split("</script").join("<\\/script");
   return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'; img-src data: blob:; font-src data:"><style>' + safeCss + '</style></head><body>' + html + '<script>' + safeJs + '<\\/script></body></html>';
 }
 
