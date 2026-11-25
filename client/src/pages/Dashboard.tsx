@@ -1,7 +1,7 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, Check, Clock3, Feather, FileText, FolderKanban, MessageSquareText, Plus, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Camera, Check, Clock3, Feather, FileText, FolderKanban, MessageSquareText, Plus, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import "../dashboard.css";
 
@@ -37,6 +37,7 @@ export default function Dashboard() {
           </div>
           <div className="dashboard-topbar-actions">
             <span className="dashboard-prototype-pill">Private workspace</span>
+            <Link href="/dashboard/camera"><Button size="sm"><Camera size={14} className="mr-2" /> Open Camera</Button></Link>
             <Link href="/"><Button variant="outline" size="sm">Public site <ArrowUpRight size={14} /></Button></Link>
           </div>
         </div>
