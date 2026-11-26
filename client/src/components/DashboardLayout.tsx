@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { ExternalLink, FilePenLine, FolderKanban, ImagePlus, LayoutDashboard, LogOut, PanelLeft } from "lucide-react";
+import { Code2, ExternalLink, FilePenLine, FolderKanban, ImagePlus, LayoutDashboard, LogOut, PanelLeft } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -30,6 +30,7 @@ import { Button } from "./ui/button";
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
   { icon: FilePenLine, label: "AI Writing", path: "/dashboard/writing" },
+  { icon: Code2, label: "Sandbox Workspace", path: "/dashboard/sandbox" },
   { icon: ImagePlus, label: "Image Creation", path: "/dashboard/images" },
   { icon: FolderKanban, label: "Projects", path: "/projects" },
   { icon: ExternalLink, label: "Public site", path: "/" },

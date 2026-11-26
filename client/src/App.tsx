@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import AIWriting from "./pages/AIWriting";
 import ImageStudio from "./pages/ImageStudio";
 import CameraStudio from "./pages/CameraStudio";
+import SandboxWorkspace from "./pages/SandboxWorkspace";
 import Projects from "./pages/Projects";
 import Threadline from "./pages/Threadline";
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/dashboard/camera"} component={CameraStudio} />
       <Route path={"/dashboard/images"} component={ImageStudio} />
       <Route path={"/dashboard/writing"} component={AIWriting} />
+      <Route path={"/dashboard/sandbox"} component={SandboxWorkspace} />
       <Route path={"/threadline"} component={Threadline} />
       <Route path={"/projects"} component={Projects} />
       <Route path={"/404"} component={NotFound} />
