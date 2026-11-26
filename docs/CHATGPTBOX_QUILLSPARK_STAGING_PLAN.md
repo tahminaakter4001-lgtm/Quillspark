@@ -70,3 +70,41 @@ Use request validation, strict payload limits, URL validation, CSRF protection w
 - Keep the extension unpacked/unpublished during development.
 - Do not merge to `main`, publish an extension, change production secrets, or deploy production resources.
 - Require tests and explicit review before any staging deployment.
+
+
+## Manus ZIP source inspection (uploaded `quillspark.zip`)
+
+The uploaded archive was readable and contains 129 entries. It is a Manus starter application, not a ChatGPTBox extension source tree.
+
+### Observed frontend
+
+- React 19, TypeScript, Vite 7, Wouter, Tailwind CSS 4 and shadcn-style UI components.
+- `client/src/App.tsx` currently routes only `/` to `Home` and `/404` to `NotFound`.
+- `client/src/pages/Home.tsx` is explicitly a placeholder/example page (spinner, “Example Page”, sample markdown and button).
+- `client/src/components/DashboardLayout.tsx` is a generic authenticated dashboard shell with placeholder menu items (“Page 1”, “Page 2”).
+- No Research Library, writing, translation, terminology-audit or ChatGPTBox integration page/file is present in the archive.
+
+### Observed backend and identity
+
+- Express 4 with tRPC 11; server entry is `server/_core/index.ts`.
+- `server/_core/context.ts` resolves the existing platform session using `sdk.authenticateRequest(req)` and exposes `ctx.user`.
+- OAuth callback in `server/_core/oauth.ts` creates the session cookie.
+- The user table in `drizzle/schema.ts` uses Drizzle MySQL Core and currently contains only the `users` table.
+- `server/routers.ts` currently registers only `system` and `auth` routers; feature routers are TODO.
+- `server/db.ts` uses `drizzle-orm/mysql2`; do not apply PostgreSQL-specific schema or migration assumptions to this app.
+- `package.json` scripts include `pnpm check`, `pnpm test`, `pnpm build`, `pnpm db:push` and `pnpm db:migrate`.
+
+### Revised architecture decision
+
+Treat the uploaded Manus ZIP as the frontend/dashboard application source and as a distinct codebase from the previously inspected GitHub QuillSpark API repository. Do not assume the two share a runtime, database, session cookie, or user ID namespace until their platform configuration and deployment origins are verified.
+
+For the Manus app, prefer feature routers using its existing tRPC context and authenticated `ctx.user`, plus MySQL-compatible Drizzle schema/migrations. Cross-app session reuse is not automatically safe across origins. Implement an explicit, narrowly scoped authorization bridge only after confirming cookie domain, SameSite/Secure settings, allowed origins and the Manus session contract. Do not copy signing secrets or static service tokens into ChatGPTBox.
+
+### Remaining inputs and blockers
+
+1. User's writable ChatGPTBox repository URL is still required; the archive does not contain ChatGPTBox source.
+2. Confirm whether this uploaded Manus starter is the intended QuillSpark frontend project despite its placeholder Home page and generic navigation.
+3. Confirm whether the separate GitHub QuillSpark API repository is the backend to retain, replace, or integrate with this Manus app.
+4. Confirm staging origins and database provisioning before cross-origin auth or migration work.
+
+No application code, database schema, extension source, deployment, or production configuration was changed by this inspection.
