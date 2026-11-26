@@ -51,7 +51,7 @@ export function ExamplePage() {
 | open | boolean | required |
 | onOpenChange | (open: boolean) => void | required |
 | title | string | required |
-| description | ReactNode text | — |
+| description | string | — |
 | children | ReactNode | required |
 | footer | ReactNode | — |
 | size | sm, md, lg, xl, full | md |
